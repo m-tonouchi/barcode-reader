@@ -88,27 +88,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // カメラ設定を初期化する関数
     function initializeCameraSettings() {
-        const width = Math.min(window.innerWidth, MAX_CAMERA_WIDTH);
-        const height = Math.min(window.innerHeight, MAX_CAMERA_HEIGHT);
-        
-        // iOS判定を詳細化
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const isiPhone12Pro = /iPhone13,3/.test(navigator.userAgent);
-        
+        // デバイス判定を修正
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isAndroid = /Android/.test(navigator.userAgent);
+        const isMobile = isIOS || isAndroid;
+
+        // 解像度設定の修正
+        const constraints = {
+            facingMode: isMobile ? "environment" : "user",
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 480, ideal: 720, max: 1080 }
+        };
+
         return {
             inputStream: {
                 name: "Live",
                 type: "LiveStream",
                 target: document.querySelector("#interactive"),
-                constraints: {
-                    facingMode: {
-                        exact: "environment"  // 背面カメラを強制
-                    },
-                    width: { min: 640, ideal: width, max: 1920 },
-                    height: { min: 480, ideal: height, max: 1080 },
-                    aspectRatio: isIOS ? 4/3 : undefined,
-                    frameRate: { ideal: 30 }    // フレームレートを最適化
-                },
+                constraints: constraints,
+                area: { // スキャンエリアの設定を追加
+                    top: "0%",
+                    right: "0%",
+                    left: "0%",
+                    bottom: "0%"
+                }
             },
             decoder: {
                 readers: ["code_39_reader"],
