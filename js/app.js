@@ -104,14 +104,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // カメラ設定を初期化する関数
     function initializeCameraSettings() {
-        // デバイス判定を修正
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        const isAndroid = /Android/.test(navigator.userAgent);
-        const isMobile = isIOS || isAndroid;
-
-        // 解像度設定の修正
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        // iOS向けの制約を設定
         const constraints = {
-            facingMode: isMobile ? "environment" : "user",
+            facingMode: {
+                exact: "environment"  // 背面カメラを強制
+            },
             width: { min: 640, ideal: 1280, max: 1920 },
             height: { min: 480, ideal: 720, max: 1080 }
         };
@@ -122,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 type: "LiveStream",
                 target: document.querySelector("#interactive"),
                 constraints: constraints,
-                area: { // スキャンエリアの設定を追加
+                area: {
                     top: "0%",
                     right: "0%",
                     left: "0%",
