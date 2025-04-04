@@ -37,7 +37,7 @@ h1 {
 }
 
 /* Androidの画像反転を修正 */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: .001dpcm) {
     #interactive.viewport > video {
         transform: scaleX(-1);
     }
