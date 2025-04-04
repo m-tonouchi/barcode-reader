@@ -90,32 +90,45 @@ document.addEventListener('DOMContentLoaded', function () {
     function initializeCameraSettings() {
         const width = Math.min(window.innerWidth, MAX_CAMERA_WIDTH);
         const height = Math.min(window.innerHeight, MAX_CAMERA_HEIGHT);
-
+        
+        // iOS判定を詳細化
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isiPhone12Pro = /iPhone13,3/.test(navigator.userAgent);
+        
         return {
             inputStream: {
                 name: "Live",
                 type: "LiveStream",
                 target: document.querySelector("#interactive"),
                 constraints: {
-                    facingMode: "environment",
-                    width: width,
-                    height: height
+                    facingMode: {
+                        exact: "environment"  // 背面カメラを強制
+                    },
+                    width: { min: 640, ideal: width, max: 1920 },
+                    height: { min: 480, ideal: height, max: 1080 },
+                    aspectRatio: isIOS ? 4/3 : undefined,
+                    frameRate: { ideal: 30 }    // フレームレートを最適化
                 },
             },
             decoder: {
-                readers: ["code_39_reader"], // Code39のみに変更
+                readers: ["code_39_reader"],
                 debug: {
                     drawBoundingBox: true,
                     showPattern: true
                 },
-                // Code39の設定を追加
                 config: {
                     code39Reader: {
-                        checksum: false,     // チェックサムの検証を無効
-                        skipStart: true,     // スタート/ストップ文字をスキップ
-                        strict: false        // 厳密なパターンマッチングを無効
+                        checksum: false,
+                        skipStart: true,
+                        strict: false
                     }
-                }
+                },
+                multiple: false  // 複数コードの同時読み取りを無効化
+            },
+            locate: true,  // バーコードの位置検出を有効化
+            locator: {
+                patchSize: "medium",
+                halfSample: true
             }
         };
     }
@@ -139,14 +152,22 @@ document.addEventListener('DOMContentLoaded', function () {
     // エラーハンドリング専用の関数を追加
     function handleInitializationError(err) {
         console.error("Quaggaの初期化エラー:", err);
+        
+        // iOSの権限エラーを特定
+        if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
+            alert('カメラへのアクセスが拒否されました。\nブラウザの設定からカメラへのアクセスを許可してください。');
+            return;
+        }
+        
         if (retryCount < MAX_RETRY_COUNT) {
             retryCount++;
-            const delay = RETRY_DELAY_BASE * Math.pow(2, retryCount - 1); // 指数バックオフ
+            const delay = RETRY_DELAY_BASE * Math.pow(2, retryCount - 1);
             console.log(`リトライ実行 (${retryCount}/${MAX_RETRY_COUNT}) (遅延: ${delay}ms)`);
             setTimeout(initializeQuagga, delay);
             return;
         }
-        alert(`カメラの起動に失敗しました。\n\nエラー: ${err.message || 'Unknown error'}\n\n${MAX_RETRY_COUNT}回のリトライを試行しました`);
+        
+        alert(`カメラの起動に失敗しました。\n\nエラー: ${err.name}: ${err.message}\n\n${MAX_RETRY_COUNT}回のリトライを試行しました`);
         toggleLoading(false);
     }
 
@@ -199,6 +220,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ページ遷移時のクリーンアップ
     window.addEventListener('beforeunload', cleanup);
+
+    // 画面回転時にカメラをリセット
+    window.addEventListener('orientationchange', function() {
+        setTimeout(() => {
+            cleanup();
+            initializeQuagga();
+        }, 100);
+    });
 
     // 初期化の実行
     initializeQuagga();
