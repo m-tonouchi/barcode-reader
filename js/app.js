@@ -18,6 +18,22 @@ document.addEventListener('DOMContentLoaded', function () {
     // 履歴の表示更新をデバウンス
     const debouncedUpdateHistory = debounce(updateHistoryDisplay, 100);
 
+    // バージョン情報の表示（最初に実行）
+    displayVersionInfo();
+
+    function displayVersionInfo() {
+        const versionElement = document.getElementById('version');
+        const buildInfoElement = document.getElementById('build-info');
+        
+        if (versionElement && buildInfoElement) {
+            const now = new Date();
+            versionElement.textContent = `v${APP_CONFIG.getFullVersion()}`;
+            buildInfoElement.textContent = `Build: ${now.toLocaleDateString('ja-JP')} ${now.toLocaleTimeString('ja-JP')}`;
+        } else {
+            console.error('バージョン情報の表示要素が見つかりません');
+        }
+    }
+
     // 履歴の読み込み
     function loadHistory() {
         const saved = localStorage.getItem('barcodeHistory');
@@ -156,10 +172,22 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleInitializationError(err) {
         console.error("Quaggaの初期化エラー:", err);
         
-        // iOSの権限エラーを特定
-        if (err.name === 'NotAllowedError' || err.name === 'SecurityError') {
-            alert('カメラへのアクセスが拒否されました。\nブラウザの設定からカメラへのアクセスを許可してください。');
-            return;
+        // エラーメッセージの詳細化
+        let errorMessage = 'カメラの起動に失敗しました。\n\n';
+        
+        switch (err.name) {
+            case 'NotAllowedError':
+            case 'SecurityError':
+                errorMessage += 'カメラへのアクセスが拒否されました。\nブラウザの設定からカメラへのアクセスを許可してください。';
+                break;
+            case 'NotFoundError':
+                errorMessage += 'カメラが見つかりません。\nデバイスにカメラが接続されているか確認してください。';
+                break;
+            case 'NotReadableError':
+                errorMessage += 'カメラにアクセスできません。\n他のアプリケーションがカメラを使用していないか確認してください。';
+                break;
+            default:
+                errorMessage += `エラー: ${err.name}: ${err.message}`;
         }
         
         if (retryCount < MAX_RETRY_COUNT) {
@@ -169,8 +197,8 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(initializeQuagga, delay);
             return;
         }
-        
-        alert(`カメラの起動に失敗しました。\n\nエラー: ${err.name}: ${err.message}\n\n${MAX_RETRY_COUNT}回のリトライを試行しました`);
+
+        alert(errorMessage);
         toggleLoading(false);
     }
 
