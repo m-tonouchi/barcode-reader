@@ -103,10 +103,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
             },
             decoder: {
-                readers: ["ean_reader", "ean_8_reader", "code_128_reader", "code_39_reader"],
+                readers: ["code_39_reader"], // Code39のみに変更
                 debug: {
                     drawBoundingBox: true,
                     showPattern: true
+                },
+                // Code39の設定を追加
+                config: {
+                    code39Reader: {
+                        checksum: false,     // チェックサムの検証を無効
+                        skipStart: true,     // スタート/ストップ文字をスキップ
+                        strict: false        // 厳密なパターンマッチングを無効
+                    }
                 }
             }
         };
