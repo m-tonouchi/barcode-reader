@@ -177,8 +177,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Quaggaが開始されたらローディングを非表示にする
-    Quagga.onStarted(function () {
-        toggleLoading(false);
+    Quagga.onProcessed(function(result) {
+        if (result) {
+            toggleLoading(false);
+        }
     });
 
     // クリーンアップ関数の追加
