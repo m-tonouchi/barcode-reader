@@ -23,12 +23,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function displayVersionInfo() {
         const versionElement = document.getElementById('version');
-        const buildInfoElement = document.getElementById('build-info');
-        
-        if (versionElement && buildInfoElement) {
-            const now = new Date();
+        if (versionElement) {
             versionElement.textContent = `v${APP_CONFIG.getFullVersion()}`;
-            buildInfoElement.textContent = `Build: ${now.toLocaleDateString('ja-JP')} ${now.toLocaleTimeString('ja-JP')}`;
         } else {
             console.error('バージョン情報の表示要素が見つかりません');
         }
@@ -240,26 +236,27 @@ document.addEventListener('DOMContentLoaded', function () {
         if (result) {
             toggleLoading(false);
         }
-    });
-
+    Quagga.onProcessed(function(result) {
+        if (result) {
+            toggleLoading(false);
+        }ion cleanup() {
+    }); Quagga.stop();
+        toggleLoading(false);
     // クリーンアップ関数の追加
     function cleanup() {
         Quagga.stop();
-        toggleLoading(false);
+        toggleLoading(false);beforeunload', cleanup);
     }
-
-    // ページ遷移時のクリーンアップ
-    window.addEventListener('beforeunload', cleanup);
-
     // 画面回転時にカメラをリセット
+    // ページ遷移時のクリーンアップstener('orientationchange', function() {
+    window.addEventListener('beforeunload', cleanup);
+            cleanup();
+    // 画面回転時にカメラをリセットeQuagga();
     window.addEventListener('orientationchange', function() {
         setTimeout(() => {
             cleanup();
             initializeQuagga();
-        }, 100);
-    });
-
-    // 初期化の実行
-    initializeQuagga();
-    updateHistoryDisplay();
+        }, 100);agga();
+    });ateHistoryDisplay();
 });
+    // 初期化の実行    initializeQuagga();    updateHistoryDisplay();});
