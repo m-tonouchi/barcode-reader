@@ -236,27 +236,26 @@ document.addEventListener('DOMContentLoaded', function () {
         if (result) {
             toggleLoading(false);
         }
-    Quagga.onProcessed(function(result) {
-        if (result) {
-            toggleLoading(false);
-        }ion cleanup() {
-    }); Quagga.stop();
-        toggleLoading(false);
-    // クリーンアップ関数の追加
+    });
+
+    // クリーンアップ関数の定義
     function cleanup() {
         Quagga.stop();
-        toggleLoading(false);beforeunload', cleanup);
+        toggleLoading(false);
     }
-    // 画面回転時にカメラをリセット
-    // ページ遷移時のクリーンアップstener('orientationchange', function() {
+
+    // ページ遷移時のクリーンアップ
     window.addEventListener('beforeunload', cleanup);
-            cleanup();
-    // 画面回転時にカメラをリセットeQuagga();
+
+    // 画面回転時のカメラリセット
     window.addEventListener('orientationchange', function() {
         setTimeout(() => {
             cleanup();
             initializeQuagga();
-        }, 100);agga();
-    });ateHistoryDisplay();
+        }, 100);
+    });
+
+    // 初期化の実行
+    initializeQuagga();
+    updateHistoryDisplay();
 });
-    // 初期化の実行    initializeQuagga();    updateHistoryDisplay();});
