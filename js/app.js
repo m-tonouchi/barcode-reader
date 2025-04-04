@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // 画面サイズに応じた適切なカメラ解像度を設定
+    const width = Math.min(window.innerWidth, 640);
+    const height = Math.min(window.innerHeight, 480);
+
     // Quaggaの初期化と開始
     Quagga.init({
         inputStream: {
@@ -7,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
             target: document.querySelector("#interactive"),
             constraints: {
                 facingMode: "environment",  // 背面カメラを使用
-                width: 640,    // 追加：カメラ解像度の設定
-                height: 480    // 追加：カメラ解像度の設定
+                width: width,    // 画面幅に合わせる
+                height: height   // 画面高さに合わせる
             },
         },
         decoder: {
