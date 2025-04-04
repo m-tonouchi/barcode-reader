@@ -6,15 +6,22 @@ document.addEventListener('DOMContentLoaded', function() {
             type: "LiveStream",
             target: document.querySelector("#interactive"),
             constraints: {
-                facingMode: "environment"  // 背面カメラを使用
+                facingMode: "environment",  // 背面カメラを使用
+                width: 640,    // 追加：カメラ解像度の設定
+                height: 480    // 追加：カメラ解像度の設定
             },
         },
         decoder: {
-            readers: ["ean_reader", "ean_8_reader", "code_128_reader", "code_39_reader"]
+            readers: ["ean_reader", "ean_8_reader", "code_128_reader", "code_39_reader"],
+            debug: {
+                drawBoundingBox: true,  // 追加：検出範囲の表示
+                showPattern: true       // 追加：検出パターンの表示
+            }
         }
     }, function(err) {
         if (err) {
-            console.error(err);
+            console.error("Quaggaの初期化エラー:", err);
+            alert("カメラの起動に失敗しました。カメラへのアクセスを許可してください。");
             return;
         }
         console.log("Quagga initialization succeeded");
@@ -26,12 +33,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (result.codeResult.code) {
             // 検出されたコードを表示
             document.getElementById('code').textContent = result.codeResult.code;
-            // 検出音を再生（オプション）
-            beep();
+            // 簡単なビープ音を再生
+            navigator.vibrate && navigator.vibrate(200); // バイブレーション（対応端末のみ）
+            playBeep();
         }
     });
 });
 
-// 検出音を再生する関数
-function beep() {
-    const audio = new Audio("data:audio/wav;base64,//uQRAAAAWMSLwUIYAAsYkXgoQwAEaYLWfkWgAI0wWs/ItAAAGDgYtAgAyN+QWaAAihwMWm4G8QQRDiMcCBcH3Cc+CDv/7xA4Tvh9Rz/y8QADBwMWgQAZG/ILNAARQ4GLTcDeIIIhxGOBAuD7hOfBB3/94gcJ3w+o5/5eIAIAAAVwWgQAVQ2ORaIQwEMAJiDg95G4nQL7mQVWI6GwRcfsZAcsKkJvxgxEjzFUgfHoSQ9Qq7KNwqHwuB13MA4a1q/DmBrHgPcmjiGoh//EwC5nGPEmS4RcfkVKOhJf+WOgoxJclFz3kgn//dBA+ya1GhurNn8zb//9NNutNuhz31f////9vt///z+IdAEAAAK4LQIAKobHItEIYCGAExBwe8jcToF9zIKrEdDYIuP2MgOWFSE34wYiR5iqQPj0JIeoVdlG4VD4XA67mAcNa1fhzA1jwHuTRxDUQ//iYBczjHiTJcIuPyKlHQkv/LHQUYkuSi57yQT//uggfZNajQ3Vmz+Zt//+mm3Wm3Q576v////+32///5/EOgAAADVghQAAAAA//uQZAUAB1WI0PZugAAAAAoQwAAAEk3nRd2qAAAAACiDgAAAAAAABCqEEQRLCgwpBGMlJkIz8jKhGvj4k6jzRnqasNKIeoh5gI7BJaC1A1AoNBjJgbyApVS4IDlZgDU5WUAxEKDNmmALHzZp0Fkz1FMTmGFl1FMEyodIavcCAUHDWrKAIA4aa2oCgILEBupZgHvAhEBcZ6joQBxS76AgccrFlczBvKLC0QI2cBoCFvfTDAo7eoOQInqDPBtvrDEZBNYN5xwNwxQRfw8ZQ5wQVLvO8OYU+mHvFLlDh05Mdg7BT6YrRPpCBznMB2r//xKJjyyOh+cImr2/4doscwD6neZjuZR4AgAABYAAAABy1xcdQtxYBYYZdifkUDgzzXaXn98Z0oi9ILU5mBjFANmRwlVJ3/6jYDAmxaiDG3/6xjQQCCKkRb/6kg
+// シンプルなビープ音を生成して再生
+function playBeep() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        oscillator.connect(audioContext.destination);
+        oscillator.frequency.value = 800;
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 100);
+    } catch (e) {
+        console.log("音声再生エラー:", e);
+    }
+}
