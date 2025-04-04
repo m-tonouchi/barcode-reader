@@ -90,3 +90,23 @@ h1 {
         height: 240px;
     }
 }
+
+.version-info {
+    text-align: center;
+    padding: 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: #666;
+}
+
+#version {
+    font-weight: bold;
+}
+
+#build-info {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+}

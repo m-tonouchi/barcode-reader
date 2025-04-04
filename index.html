@@ -6,10 +6,15 @@
     <title>バーコードリーダー</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+    <script src="js/config.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>バーコードリーダー</h1>
+        <div class="version-info">
+            <div id="version"></div>
+            <div id="build-info"></div>
+        </div>
         <div id="loading" class="loading hidden">カメラ起動中...</div>
         <div id="interactive" class="viewport"></div>
         <div id="result">
